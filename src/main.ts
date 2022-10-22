@@ -11,10 +11,12 @@ async function bootstrap() {
         urls: [
           `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_IP}:${process.env.RABBITMQ_PORT}/${process.env.RABBITMQ_VIRTUALHOST}`,
         ],
+        noAck: false,
         queue: 'admin-backend',
       },
     },
   );
+
   await app.listen();
 }
 bootstrap();
