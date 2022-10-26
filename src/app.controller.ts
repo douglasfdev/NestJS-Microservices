@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -31,11 +31,19 @@ export class AppController {
       await channel.ack(originalMsg);
     } catch (err) {
       this.logger.error(`error: ${JSON.stringify(err.message)}`);
-      ackErrors.map(async (ackError) => {
-        if (err.message.includes(ackError)) {
-          await channel.ack(originalMsg);
-        }
-      });
+
+      // ackErrors.map(async (ackError) => {
+      //   if (err.message.includes(ackError)) {
+      //     await channel.ack(originalMsg);
+      //   }
+      // });
+
+      const filterAckError = ackErrors.filter((ackError) =>
+        err.message.includes(ackError),
+      );
+      if (filterAckError) {
+        await channel.ack(originalMsg);
+      }
     }
   }
 
@@ -54,6 +62,26 @@ export class AppController {
       }
     } finally {
       await channel.ack(originalMsg);
+    }
+  }
+
+  @EventPattern('atualizar-categoria')
+  async atualizarCategoria(@Payload() data: any, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    this.logger.log(`Data: ${JSON.stringify(data)}`);
+
+    try {
+      const _id: string = data.id;
+      const categoria: Categoria = data.categoria;
+      await this.appService.atualizarCategoria(_id, categoria);
+    } catch (err) {
+      const filterAckError = ackErrors.filter(async (ackError) =>
+        err.message.includes(ackError),
+      );
+      if (filterAckError) {
+        await channel.ack(originalMsg);
+      }
     }
   }
 }

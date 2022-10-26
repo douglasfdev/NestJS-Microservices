@@ -45,9 +45,9 @@ export class AppService {
       await this.categoriaModel
         .findOneAndUpdate({ _id }, { $set: categoria })
         .exec();
-    } catch (e) {
-      this.logger.error(`error: ${JSON.stringify(e.message)}`);
-      throw new RpcException(e.message);
+    } catch (err) {
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
+      throw new RpcException(err.message);
     }
   }
 }
