@@ -24,15 +24,15 @@ export class AppController {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    this.logger.log(`data: ${JSON.stringify(categoria)}`);
+    this.logger.log(`Categoria: ${JSON.stringify(categoria)}`);
 
     try {
       await this.appService.criarCategoria(categoria);
       await channel.ack(originalMsg);
-    } catch (error) {
-      this.logger.error(`error: ${JSON.stringify(error.message)}`);
+    } catch (err) {
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
       ackErrors.map(async (ackError) => {
-        if (error.message.includes(ackError)) {
+        if (err.message.includes(ackError)) {
           await channel.ack(originalMsg);
         }
       });
